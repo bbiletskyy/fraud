@@ -1,22 +1,28 @@
 package fraud.main
 
 import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkEnv
+import akka.actor.Actor.Receive
+import akka.actor.{ Actor, ActorIdentity, Identify, Props }
+import java.util.concurrent.Executors
+import org.apache.spark._
+import org.apache.spark.SparkContext._
+import org.apache.spark.storage._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.dstream._
+import org.apache.spark.streaming.receiver._
+import scala.concurrent.Await
+import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.mllib.classification.NaiveBayes
-import org.apache.spark.mllib.classification.NaiveBayesModel
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.streaming.Seconds
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.receiver.ActorHelper
+import org.apache.spark.mllib.classification.NaiveBayesModel
 
-import com.datastax.spark.connector.toSparkContextFunctions
+import spray.json._
+import fraud.main.TransactionJsonProtocol._
 
-import akka.actor.Actor
-import akka.actor.Props
-import fraud.main.TransactionJsonProtocol.TransactionFormat
-import spray.json.pimpAny
+import com.datastax.spark.connector._
+import com.datastax.spark.connector.streaming._
+
 
 /** Object in charge of running real stream analytics */
 object Spark {
@@ -28,7 +34,7 @@ object Spark {
 
     val actorStream = ssc.actorStream[Transaction](Props[Receiver], receiverActorName)
     val fraudTransactions = actorStream.filter(t => isFraud(t, model)).map(t => (t.id, t.toJson.compactPrint))
-    fraudTransactions.foreachRDD { rdd => rdd.foreach { t => println } }
+    fraudTransactions.saveToCassandra("fraud", "fraud_transactions", SomeColumns("transaction_id", "transaction"))
 
     ssc.start()
     ssc.awaitTermination(10000)
