@@ -8,9 +8,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 object Rest {
-
-
-
+  
   def init(actorSystem: ActorSystem, driverHost: String, driverPort: Int, receiverActorName: String) {
     implicit val system = actorSystem
     val connector = lookup(actorSystem, driverHost, driverPort, receiverActorName)

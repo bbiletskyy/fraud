@@ -11,7 +11,7 @@ object TransactionJsonProtocol extends DefaultJsonProtocol {
 }
 
 object Domain {
-  val receivers = Seq("Albert Hein", "E-Bay", "Power Company")
+  val receivers = Seq("Albert Hein", "E-Bay", "Alibaba")
   val receiverIds = Map(receivers(0) -> 0, receivers(1) -> 1, receivers(2) -> 2)
 
   def features(t: Transaction) = Vectors.dense(receiverId(t), amountId(t))
@@ -33,7 +33,7 @@ object RandomTransaction {
   val rnd = new scala.util.Random()
 
   def randomTransaction() = apply()
-  def randomFraud() = Transaction(randomUUID.toString, randomUUID.toString, Domain.receivers(2), generateRandomAmount(0,0).toString, timestamp)
+  def randomFraud() = Transaction(randomUUID.toString, randomUUID.toString, Domain.receivers(1), generateRandomAmount(0,0).toString, timestamp)
   def apply(): Transaction = Transaction(randomUUID.toString, randomUUID.toString, randomReceiver, randomAmount, timestamp)
 
   def randomReceiver() = Domain.receiverIds.keys.toSeq(rnd.nextInt(Domain.receiverIds.keys.size))
