@@ -1,25 +1,22 @@
 package fraud.main
 
-import akka.actor.Actor.Receive
-import akka.actor.{ Actor, ActorIdentity, Identify, Props }
-import java.util.concurrent.Executors
-import org.apache.spark._
-import org.apache.spark.SparkContext._
-import org.apache.spark.storage._
-import org.apache.spark.streaming._
-import org.apache.spark.streaming.dstream._
-import org.apache.spark.streaming.receiver._
-import scala.concurrent.Await
-import org.apache.spark.streaming.StreamingContext._
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkEnv
 import org.apache.spark.mllib.classification.NaiveBayes
+import org.apache.spark.mllib.classification.NaiveBayesModel
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.classification.NaiveBayesModel
+import org.apache.spark.streaming.Seconds
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.receiver.ActorHelper
 
-import spray.json._
+import com.datastax.spark.connector.toSparkContextFunctions
 
-import com.datastax.spark.connector._
-import com.datastax.spark.connector.streaming._
+import akka.actor.Actor
+import akka.actor.Props
+import fraud.main.TransactionJsonProtocol.TransactionFormat
+import spray.json.pimpAny
 
 /** Object in charge of running real stream analytics */
 object Spark {
@@ -27,9 +24,11 @@ object Spark {
     val conf = sparkConf(driverHost, driverPort)
     val sc = new SparkContext(conf)
     val ssc = new StreamingContext(sc, Seconds(1))
+    val model = train("fraud", "training_set", sc)
 
     val actorStream = ssc.actorStream[Transaction](Props[Receiver], receiverActorName)
-    actorStream.foreachRDD { rdd => rdd.foreach { t => println } }
+    val fraudTransactions = actorStream.filter(t => isFraud(t, model)).map(t => (t.id, t.toJson.compactPrint))
+    fraudTransactions.foreachRDD { rdd => rdd.foreach { t => println } }
 
     ssc.start()
     ssc.awaitTermination(10000)
@@ -41,6 +40,11 @@ object Spark {
     val trainingSet = sc.cassandraTable(keySpace, table)
     val lps = trainingSet.map { r => LabeledPoint(r.getDouble("class_id"), Vectors.dense(r.getDouble("destination_id"), r.getDouble("amount_id"))) }
     NaiveBayes.train(lps, lambda = 1.0)
+  }
+
+  /** Predicts whether a transaction is a fraud. Returns <code>true</code> if transaction is fraud given the model, else returns <code>false</code>. */
+  def isFraud(transaction: Transaction, model: NaiveBayesModel): Boolean = {
+    model.predict(Domain.features(transaction)) == 1.0
   }
 
   /** Returns Spark configuration */
