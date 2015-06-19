@@ -1,10 +1,13 @@
 package fraud.main
 
 import org.apache.spark.mllib.linalg.Vectors
-
+import spray.json.DefaultJsonProtocol
 
 case class Transaction(id: String, user: String, receiver: String, amount: String, timestamp: String)
 
+object TransactionJsonProtocol extends DefaultJsonProtocol {
+  implicit val TransactionFormat = jsonFormat5(Transaction)
+}
 
 object Domain {
   val receivers = Seq("Albert Hein", "E-Bay", "Power Company")
@@ -27,7 +30,7 @@ object Domain {
 object RandomTransaction {
 
   val rnd = new scala.util.Random()
-  def ramdomTransaction() = apply()
+  def randomTransaction() = apply()
 
   def apply(): Transaction = Transaction(randomGiud, randomGiud, randomReceiver, randomAmount, timestamp)
 
@@ -38,5 +41,9 @@ object RandomTransaction {
   def randomLargeAmount() = rnd.nextInt(999) + (rnd.nextInt(99).toDouble / 100)
   def randomAmount() = Seq(randomSmallAmount, randomMediumAmount, randomLargeAmount)(rnd.nextInt(3)).toString()
   def timestamp() = new java.util.Date().toString()
+
+  private def generateRandom(minBound: Int, maxBound: Int): Unit ={
+
+  }
 
 }
