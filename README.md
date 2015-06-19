@@ -1,4 +1,4 @@
-# Fraud - Realtime fraud transaction prediction engine
+# Fraud - Realtime fraud transaction prediction engine example
 
 Fraud - Microservice that analizes in real time streams of transactions submitted via the rest interface and detects fraud ones.
 
@@ -10,7 +10,7 @@ How to run:
 
 Project consists of 2 parts:
 
-1. fraud-main - microservice that predicts fraud transactions built with Spay, Akka Actors, Spark
+1. fraud-main - microservice that predicts fraud transactions using Naive Bayes algorythm built with Spay, Akka Actors, Spark and Cassandra
 2. fraud-test - load-testing application, sending events to the microservice, built using Gatling
 
 Setting up database
