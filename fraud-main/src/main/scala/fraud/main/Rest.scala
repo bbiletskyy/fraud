@@ -12,8 +12,7 @@ object Rest {
 
 
   def init(actorSystem: ActorSystem, driverHost: String, driverPort: Int, receiverActorName: String) {
-    // create actor system with the name initActorSystem
-    implicit val system = ActorSystem("initActorSystem")
+    implicit val system = actorSystem
     val connector = lookup(actorSystem, driverHost, driverPort, receiverActorName)
     val service = system.actorOf(Props(new RestServiceActor(connector)), "rest-service")
 
