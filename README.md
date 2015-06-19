@@ -2,18 +2,18 @@
 
 Fraud - Microservice that analizes in real time streams of transactions submitted via the rest interface and detects fraud ones.
 
+How to run:
+
+1. Set up database (see below)
+2. sbt fraud-main/run - to run microservice, navigate to http://localhost:8080, or POST transaction with application/json Content-Type to http://localhost:8080/transaction
+3. sbt fraud-test/gatling:test - to load test with 10000 transactions and 10 concurrent users
+
 Project consists of 2 parts:
 
 1. fraud-main - microservice that predicts fraud transactions built with Spay, Akka Actors, Spark
 2. fraud-test - load-testing application, sending events to the microservice, built using Gatling
 
-How to run:
-
-1. sbt fraud-main/run - to run microservice, navigate to http://localhost:8080, or POST event in application/json format to http://localhost:8080/event
-2. sbt fraud-test/gatling:test - to run load test
-
-
-Installing Cassandra
+Setting up database
 
 1. Install Cassandra on the local machine.
 2. Create namespace "fraud"
@@ -28,7 +28,7 @@ CREATE KEYSPACE fraud WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replicat
 CREATE TABLE fraud.fraud_transactions (transaction_id text PRIMARY KEY, transaction text);
 ```
 
-4. Create a table for storing the training set examples
+4. Create a table for storing training set examples
 
 ```
 CREATE TABLE fraud.training_set (transaction_id text PRIMARY KEY, amount_id double, class_id double, destination_id double);
