@@ -1,6 +1,7 @@
 *.class
 *.log
 *.classpath
+*.bat
 
 # sbt specific
 .cache
