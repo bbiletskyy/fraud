@@ -2,47 +2,55 @@ package fraud.main
 
 import akka.actor.Actor
 import spray.routing._
+import spray.http._
+import MediaTypes._
+import akka.actor.ActorRef
 import spray.http.MediaTypes.{ `text/html` }
-import spray.http.MediaTypes.{ `application/json` }
+import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
+import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
 
-
-class InitServiceActor() extends Actor with RestService {
+/**Actor Service that  */
+class RestServiceActor(connector: ActorRef) extends Actor with RestService {
   def actorRefFactory = context
   def receive = runRoute(route)
-  def communicate(t: Transaction) = t
+
+  def communicate(t: Transaction) = connector ! t
   override def preStart() = println(s"Starting rest-service actor at ${context.self.path}")
 }
 
-  /** Define routing */
-  trait RestService extends HttpService {
-    def communicate(t: Transaction)
+/** This trait defines the routing */
+trait RestService extends HttpService {
+  def communicate(t: Transaction)
 
-    val route =
-      path("") {
-        get {
-          respondWithMediaType(`text/html`) {
-            complete {
-              <html>
-                <body>
-                  <h1>Hello Rest</h1>
-                </body>
-              </html>
-            }
-          }
-        }
-      } ~ path("transaction") {
-        post {
-          entity(as[Transaction]) { transaction =>
-            communicate(transaction)
-            complete(transaction)
-          }
-        }
-      } ~  path("transactions") {
-        get {
-          respondWithMediaType(`application/json`) {
-            complete (Seq(RandomTransaction(), RandomTransaction(), RandomTransaction()))
+  import TransactionJsonProtocol._
+
+  val route =
+    path("") {
+      get {
+        respondWithMediaType(`text/html`) {
+          complete {
+            <html>
+              <body>
+                <h1>Real Time Transaction Fraud Detection REST API</h1>
+                <a href="/transactions">Examples</a>
+                of event json format.
+              </body>
+            </html>
           }
         }
       }
-  }
-
+    } ~ path("transaction") {
+      post {
+        entity(as[Transaction]) { transaction =>
+          communicate(transaction)
+          complete(transaction)
+        }
+      }
+    } ~ path("transactions") {
+      get {
+        respondWithMediaType(`application/json`) {
+          complete (Seq(RandomTransaction(), RandomTransaction(), RandomTransaction()))
+          }
+        }
+      }
+}
