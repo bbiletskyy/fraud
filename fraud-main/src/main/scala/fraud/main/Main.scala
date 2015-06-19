@@ -3,8 +3,10 @@ package fraud.main
 /** Object running the application */
 object Main {
   def main(args: Array[String]): Unit = {
-    println("Hello World!")
-    val actorSystem = Spark.init("localhost", 7777, "receiver")
-    Rest.init(actorSystem, "localhost", 7777, "receiver")
+    val driverHost = "localhost"
+    val driverPort = 7777
+    val receiverActorName = "receiver"
+    val actorSystem = Spark.init(driverHost, driverPort, receiverActorName)
+    Rest.init(actorSystem, driverHost, driverPort, receiverActorName)
   }
 }
