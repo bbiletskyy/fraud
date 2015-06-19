@@ -2,12 +2,12 @@ package fraud.main
 
 import akka.actor.Actor
 import spray.routing._
-import spray.http._
-import MediaTypes._
 import akka.actor.ActorRef
 import spray.http.MediaTypes.{ `text/html` }
+import spray.http.MediaTypes.{`application/json` }
 import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
 import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
+import fraud.main.RandomTransaction._
 
 /**Actor Service that  */
 class RestServiceActor(connector: ActorRef) extends Actor with RestService {
@@ -49,8 +49,7 @@ trait RestService extends HttpService {
     } ~ path("transactions") {
       get {
         respondWithMediaType(`application/json`) {
-
-          complete (Seq(RandomTransaction(), RandomTransaction(), RandomTransaction()))
+          complete (randomTransactions(10))
           }
         }
       }
