@@ -32,6 +32,7 @@ CREATE TABLE fraud.training_set (transaction_id text PRIMARY KEY, amount_id doub
 
 5. Insert training set examples:
 
+```
 USE  fraud;
 INSERT INTO training_set (transaction_id, class_id, destination_id, amount_id) VALUES ('1', 1.0, 1.0, 0.0);
 INSERT INTO training_set (transaction_id, class_id, destination_id, amount_id) VALUES ('2', 0.0, 0.0, 0.0);
@@ -41,3 +42,4 @@ INSERT INTO training_set (transaction_id, class_id, destination_id, amount_id) V
 INSERT INTO training_set (transaction_id, class_id, destination_id, amount_id) VALUES ('6', 1.0, 1.0, 0.0);
 INSERT INTO training_set (transaction_id, class_id, destination_id, amount_id) VALUES ('7', 1.0, 1.0, 0.0);
 INSERT INTO training_set (transaction_id, class_id, destination_id, amount_id) VALUES ('8', 1.0, 1.0, 0.0);
+```
