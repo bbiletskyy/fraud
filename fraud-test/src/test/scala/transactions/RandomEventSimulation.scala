@@ -18,7 +18,7 @@ class RandomEventSimulation extends Simulation{
   val scn = scenario("Posting Random Transactions").repeat(100,"transaction_nr") {
 
     exec{session=>
-      var transaction = if(session("transaction_nr").as[Int]%10==0) RandomTransaction.randomFraud() else RandomTransaction()
+      var transaction = if(session("transaction_nr").as[Int]%100==0) RandomTransaction.randomFraud() else RandomTransaction()
       session.set("transaction",transaction.toJson.compactPrint)}.
       exec(http("Posting a a random event")
       .post("/transaction").body(StringBody("${transaction}")).asJSON)
