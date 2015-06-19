@@ -4,20 +4,18 @@ Fraud - Microservice that analizes in real time streams of transactions submitte
 
 Project consists of 2 parts:
 
-1. fraud-main - microservice application that predicts fraud transactions built with Spay, Akka Actors, Spark
+1. fraud-main - microservice that predicts fraud transactions built with Spay, Akka Actors, Spark
 2. fraud-test - load-testing application, sending events to the microservice, built using Gatling
 
 How to run:
 
 1. sbt fraud-main/run - to run microservice, navigate to http://localhost:8080, or POST event in application/json format to http://localhost:8080/event
-
 2. sbt fraud-test/gatling:test - to run load test
 
 
 Installing Cassandra
 
 1. Install Cassandra on the local machine.
-
 2. Create namespace "fraud"
 
 ```

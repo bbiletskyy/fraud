@@ -62,14 +62,6 @@ object Spark {
     .set("spark.driver.host", driverHost)
     .set("spark.akka.logLifecycleEvents", "true")
     .set("spark.cassandra.connection.host", "127.0.0.1")
-
-  def main(args: Array[String]): Unit = {
-    println("Starting Spark...")
-    val driverHost = "localhost"
-    val driverPort = 7777
-    val receiverActorName = "receiver"
-    Spark.init(driverHost, driverPort, receiverActorName)
-  }
 }
 
 /** This actor is a bridge to Spark. It receives transactions and puts them to the spark stream */
