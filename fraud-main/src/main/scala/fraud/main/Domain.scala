@@ -2,6 +2,7 @@ package fraud.main
 
 import org.apache.spark.mllib.linalg.Vectors
 import spray.json.DefaultJsonProtocol
+import java.util.UUID._
 
 case class Transaction(id: String, user: String, receiver: String, amount: String, timestamp: String)
 
@@ -33,9 +34,8 @@ object RandomTransaction {
 
   def randomTransaction() = apply()
 
-  def apply(): Transaction = Transaction(randomUUID, randomUUID, randomReceiver, randomAmount, timestamp)
+  def apply(): Transaction = Transaction(randomUUID.toString, randomUUID.toString, randomReceiver, randomAmount, timestamp)
 
-  def randomUUID() = java.util.UUID.randomUUID.toString
   def randomReceiver() = Domain.receiverIds.keys.toSeq(rnd.nextInt(Domain.receiverIds.keys.size))
   def randomAmount() = Seq(generateRandomAmount(0), generateRandomAmount(99), generateRandomAmount(999))(rnd.nextInt(3)).toString()
   def timestamp() = new java.util.Date().toString()
