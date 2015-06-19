@@ -20,15 +20,21 @@ Installing Cassandra
 
 2. Create namespace "fraud"
 
+```
 CREATE KEYSPACE fraud WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+```
 
 3. Create a table for storing detected fraud transactions
 
+```
 CREATE TABLE fraud.fraud_transactions (transaction_id text PRIMARY KEY, transaction text);
+```
 
 4. Create a table for storing the training set examples
 
+```
 CREATE TABLE fraud.training_set (transaction_id text PRIMARY KEY, amount_id double, class_id double, destination_id double);
+```
 
 5. Insert training set examples:
 
