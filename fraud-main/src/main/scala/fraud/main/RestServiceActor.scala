@@ -3,8 +3,7 @@ package fraud.main
 import akka.actor.Actor
 import spray.routing._
 import spray.http.MediaTypes.{ `text/html` }
-
-
+import spray.http.MediaTypes.{ `application/json` }
 
 
 class InitServiceActor() extends Actor with RestService {
@@ -17,6 +16,7 @@ class InitServiceActor() extends Actor with RestService {
   /** Define routing */
   trait RestService extends HttpService {
     def communicate(t: Transaction)
+
     val route =
       path("") {
         get {
@@ -30,5 +30,19 @@ class InitServiceActor() extends Actor with RestService {
             }
           }
         }
+      } ~ path("transaction") {
+        post {
+          entity(as[Transaction]) { transaction =>
+            communicate(transaction)
+            complete(transaction)
+          }
+        }
+      } ~  path("transactions") {
+        get {
+          respondWithMediaType(`application/json`) {
+            complete (Seq(RandomTransaction(), RandomTransaction(), RandomTransaction()))
+          }
+        }
       }
-}
+  }
+
