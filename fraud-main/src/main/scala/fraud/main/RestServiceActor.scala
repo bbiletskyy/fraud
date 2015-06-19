@@ -1,26 +1,45 @@
 package fraud.main
 
-import akka.actor.Actor
-import spray.routing._
-import akka.actor.ActorRef
-import spray.http.MediaTypes.{ `text/html` }
-import spray.http.MediaTypes.{`application/json` }
-import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
-import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
+import akka.actor.{Actor, ActorRef}
+import com.datastax.driver.core._
 import fraud.main.RandomTransaction._
+import spray.http.MediaTypes.{`application/json`, `text/html`}
+import spray.httpx.SprayJsonSupport.{sprayJsonMarshaller, sprayJsonUnmarshaller}
+import spray.json.JsonParser
+import spray.routing._
 
-/**Actor Service that  */
+import scala.collection.JavaConversions._
+
+/** Actor Service that  */
 class RestServiceActor(connector: ActorRef) extends Actor with RestService {
   def actorRefFactory = context
+
   def receive = runRoute(route)
 
   def communicate(t: Transaction) = connector ! t
+
   override def preStart() = println(s"Starting rest-service actor at ${context.self.path}")
 }
 
 /** This trait defines the routing */
 trait RestService extends HttpService {
   def communicate(t: Transaction)
+
+  val session = initCassandraConnection()
+
+  def initCassandraConnection() = {
+    val cluster = new Cluster.Builder().
+      addContactPoints("localhost").
+      withPort(9042).
+      withQueryOptions(new QueryOptions().setConsistencyLevel(QueryOptions.DEFAULT_CONSISTENCY_LEVEL)).build();
+    val session = cluster.connect()
+    session.execute(s"USE fraud")
+    session
+  }
+
+  def selectFraud() = {
+    session.execute("select * from fraud_transactions").all().toList.map(x => JsonParser(x.getString("transaction")).asJsObject())
+  }
 
   import TransactionJsonProtocol._
 
@@ -49,8 +68,14 @@ trait RestService extends HttpService {
     } ~ path("transactions") {
       get {
         respondWithMediaType(`application/json`) {
-          complete (randomTransactions(10))
-          }
+          complete(randomTransactions(10))
         }
       }
+    } ~ path("fraud") {
+      get {
+        respondWithMediaType(`application/json`) {
+          complete(selectFraud())
+        }
+      }
+    }
 }
