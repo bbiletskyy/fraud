@@ -1,1 +1,0 @@
-start sbt fraud-main/run
