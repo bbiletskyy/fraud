@@ -30,20 +30,18 @@ object Domain {
 object RandomTransaction {
 
   val rnd = new scala.util.Random()
+
   def randomTransaction() = apply()
 
-  def apply(): Transaction = Transaction(randomGiud, randomGiud, randomReceiver, randomAmount, timestamp)
+  def apply(): Transaction = Transaction(randomUUID, randomUUID, randomReceiver, randomAmount, timestamp)
 
-  def randomGiud() = java.util.UUID.randomUUID.toString
+  def randomUUID() = java.util.UUID.randomUUID.toString
   def randomReceiver() = Domain.receiverIds.keys.toSeq(rnd.nextInt(Domain.receiverIds.keys.size))
-  def randomSmallAmount() = (rnd.nextInt(99).toDouble / 100)
-  def randomMediumAmount() = rnd.nextInt(99) + (rnd.nextInt(99).toDouble / 100)
-  def randomLargeAmount() = rnd.nextInt(999) + (rnd.nextInt(99).toDouble / 100)
-  def randomAmount() = Seq(randomSmallAmount, randomMediumAmount, randomLargeAmount)(rnd.nextInt(3)).toString()
+  def randomAmount() = Seq(generateRandomAmount(0), generateRandomAmount(99), generateRandomAmount(999))(rnd.nextInt(3)).toString()
   def timestamp() = new java.util.Date().toString()
 
-  private def generateRandom(minBound: Int, maxBound: Int): Unit ={
-
+  private def generateRandomAmount(maxBound: Int): Unit ={
+    rnd.nextInt(maxBound) + (rnd.nextInt(99).toDouble /100)
   }
 
 }
