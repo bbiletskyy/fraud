@@ -40,8 +40,13 @@ object RandomTransaction {
   def randomAmount() = Seq(generateRandomAmount(0), generateRandomAmount(99), generateRandomAmount(999))(rnd.nextInt(3)).toString()
   def timestamp() = new java.util.Date().toString()
 
-  private def generateRandomAmount(maxBound: Int): Unit ={
-    rnd.nextInt(maxBound) + (rnd.nextInt(99).toDouble /100)
+  private def generateRandomAmount(maxBound: Int): Double ={
+    (if(maxBound==0) 0 else rnd.nextInt(maxBound)) + (rnd.nextInt(99).toDouble /100)
   }
+
+  def randomTransactions(size : Int) = {
+    Array.fill[Transaction](size)(apply())
+  }
+
 
 }

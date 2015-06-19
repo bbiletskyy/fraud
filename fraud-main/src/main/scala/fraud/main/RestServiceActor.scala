@@ -49,6 +49,7 @@ trait RestService extends HttpService {
     } ~ path("transactions") {
       get {
         respondWithMediaType(`application/json`) {
+
           complete (Seq(RandomTransaction(), RandomTransaction(), RandomTransaction()))
           }
         }
