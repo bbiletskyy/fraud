@@ -7,8 +7,8 @@ import spray.http.MediaTypes.{ `application/json`, `text/html` }
 import spray.httpx.SprayJsonSupport.{ sprayJsonMarshaller, sprayJsonUnmarshaller }
 import spray.json.JsonParser
 import spray.routing._
-
 import scala.collection.JavaConversions._
+import scala.xml.Elem
 
 /** Actor Service that  */
 class RestServiceActor(connector: ActorRef) extends Actor with RestService {
@@ -19,15 +19,19 @@ class RestServiceActor(connector: ActorRef) extends Actor with RestService {
   def communicate(t: Transaction) = connector ! t
 
   override def preStart() = println(s"Starting rest-service actor at ${context.self.path}")
+
+  val session = Cluster.builder().addContactPoint("127.0.0.1").build().connect("fraud")
+  def clean() = session.execute("TRUNCATE fraud_transactions")
+  def selectFraudHTML() = session.execute("select * from fraud_transactions").iterator().map(t => <p>{ t.getString("transaction") }</p>)
+
 }
 
 /** This trait defines the routing */
 trait RestService extends HttpService {
   import TransactionJsonProtocol._
   def communicate(t: Transaction)
-  val session = Cluster.builder().addContactPoint("127.0.0.1").build().connect("fraud")
-  def clean() = session.execute("TRUNCATE fraud_transactions")
-  def selectFraudHTML() = session.execute("select * from fraud_transactions").iterator().map(t => <p>{ t.getString("transaction") }</p>)
+  def clean(): ResultSet
+  def selectFraudHTML(): Iterator[Elem]
 
   val route =
     path("") {
@@ -80,7 +84,7 @@ trait RestService extends HttpService {
             <html>
               <body>
                 <h1>Real Time Transaction Fraud Detection REST API</h1>
-                Fraud transactions are cleaned
+                Fraud transactions are cleaned.
                 <a href="/fraud">View Detected Fraud Transactioons</a>
               </body>
             </html>
