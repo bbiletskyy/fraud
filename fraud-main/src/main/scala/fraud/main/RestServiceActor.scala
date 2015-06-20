@@ -1,10 +1,10 @@
 package fraud.main
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{ Actor, ActorRef }
 import com.datastax.driver.core._
 import fraud.main.RandomTransaction._
-import spray.http.MediaTypes.{`application/json`, `text/html`}
-import spray.httpx.SprayJsonSupport.{sprayJsonMarshaller, sprayJsonUnmarshaller}
+import spray.http.MediaTypes.{ `application/json`, `text/html` }
+import spray.httpx.SprayJsonSupport.{ sprayJsonMarshaller, sprayJsonUnmarshaller }
 import spray.json.JsonParser
 import spray.routing._
 
@@ -23,25 +23,10 @@ class RestServiceActor(connector: ActorRef) extends Actor with RestService {
 
 /** This trait defines the routing */
 trait RestService extends HttpService {
-  def communicate(t: Transaction)
-
-  val session = initCassandraConnection()
-
-  def initCassandraConnection() = {
-    val cluster = new Cluster.Builder().
-      addContactPoints("localhost").
-      withPort(9042).
-      withQueryOptions(new QueryOptions().setConsistencyLevel(QueryOptions.DEFAULT_CONSISTENCY_LEVEL)).build();
-    val session = cluster.connect()
-    session.execute(s"USE fraud")
-    session
-  }
-
-  def selectFraud() = {
-    session.execute("select * from fraud_transactions").all().toList.map(x => JsonParser(x.getString("transaction")).asJsObject())
-  }
-
   import TransactionJsonProtocol._
+  def communicate(t: Transaction)
+  val session = Cluster.builder().addContactPoint("127.0.0.1").build().connect("fraud")
+  def selectFraud() = session.execute("select * from fraud_transactions").iterator().map(_.getString("transaction")).mkString("\n")
 
   val route =
     path("") {
