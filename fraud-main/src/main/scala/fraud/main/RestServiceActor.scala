@@ -26,7 +26,7 @@ trait RestService extends HttpService {
   import TransactionJsonProtocol._
   def communicate(t: Transaction)
   val session = Cluster.builder().addContactPoint("127.0.0.1").build().connect("fraud")
-  def selectFraud() = session.execute("select * from fraud_transactions").iterator().map(_.getString("transaction")).mkString("\n")
+  def clean() = session.execute("TRUNCATE fraud_transactions")
   def selectFraudHTML() = session.execute("select * from fraud_transactions").iterator().map(t => <p>{ t.getString("transaction") }</p>)
 
   val route =
@@ -38,8 +38,8 @@ trait RestService extends HttpService {
               <body>
                 <h1>Transaction Fraud Detection Engine REST API</h1>
                 <a href="/fraud">View Detected Fraud Transactions</a>
-								<br/>
-								<a href="/transactions">View Random Transaction Examples</a>
+                <br/>
+                <a href="/transactions">View Random Transaction Examples</a>
               </body>
             </html>
           }
@@ -65,8 +65,23 @@ trait RestService extends HttpService {
             <html>
               <body>
                 <h1>Real Time Transaction Fraud Detection REST API</h1>
-                <a href="/transactions">Clean</a>
+                <a href="/clean">Clean</a>
                 <p>{ selectFraudHTML() }</p>
+              </body>
+            </html>
+          }
+        }
+      }
+    } ~ path("clean") {
+      get {
+        respondWithMediaType(`text/html`) {
+          complete {
+            clean()
+            <html>
+              <body>
+                <h1>Real Time Transaction Fraud Detection REST API</h1>
+                Fraud transactions are cleaned
+                <a href="/fraud">View Detected Fraud Transactioons</a>
               </body>
             </html>
           }
