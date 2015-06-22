@@ -11,7 +11,7 @@ object TransactionJsonProtocol extends DefaultJsonProtocol {
 }
 
 object Domain {
-  val receivers = Seq("Albert Hein", "E-Bay", "Alibaba")
+  val receivers = Seq("Albert Hein", "E-Bay", "Power Company")
   val receiverIds = Map(receivers(0) -> 0, receivers(1) -> 1, receivers(2) -> 2)
 
   def features(t: Transaction) = Vectors.dense(receiverId(t), amountId(t))
@@ -25,7 +25,6 @@ object Domain {
     else if (amount < 100) 1
     else 2
   }
-
 }
 
 object RandomTransaction {
