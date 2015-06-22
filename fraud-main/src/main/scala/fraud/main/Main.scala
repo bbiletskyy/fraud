@@ -1,6 +1,6 @@
 package fraud.main
 
-/** Object running the application */
+/** Object running the application. */
 object Main {
   def main(args: Array[String]): Unit = {
     val driverHost = "localhost"

@@ -10,7 +10,7 @@ import spray.routing._
 import scala.collection.JavaConversions._
 import scala.xml.Elem
 
-/** Actor Service that  */
+/** Actor Service that  is responsible of serving REST calls */
 class RestServiceActor(connector: ActorRef) extends Actor with RestService {
   def actorRefFactory = context
   def receive = runRoute(route)
@@ -48,7 +48,7 @@ class RestServiceActor(connector: ActorRef) extends Actor with RestService {
     </html>
 }
 
-/** This trait defines the routing */
+/** This trait defines the routing routines. */
 trait RestService extends HttpService {
   import TransactionJsonProtocol._
   def communicate(t: Transaction)

@@ -7,8 +7,9 @@ import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+/** Object in charge of REST interface startup. */
 object Rest {
-  
+  /** Launches a http servers and redirects http messages to the  receiver actor.*/
   def init(actorSystem: ActorSystem, driverHost: String, driverPort: Int, receiverActorName: String) {
     implicit val system = actorSystem
     val connector = lookup(actorSystem, driverHost, driverPort, receiverActorName)
@@ -18,6 +19,7 @@ object Rest {
     IO(Http) ? Http.Bind(service, interface = "localhost", port = 8080)
   }
 
+  /** Looks up a receiver actor.*/
   def lookup(actorSystem: ActorSystem, host: String, port: Int, actorName: String) = {
     import scala.concurrent.duration._
     val url = s"akka.tcp://sparkDriver@$host:$port/user/Supervisor0/$actorName"
