@@ -1,6 +1,6 @@
 # Fraud - Realtime fraud transaction prediction engine example
 
-Fraud - Microservice that analizes in real time streams of transactions submitted via the rest interface and detects fraud ones.
+Fraud - Microservice that analizes in real time streams of transactions events submitted via the rest interface and detects fraud ones.
 
 How to run:
 
